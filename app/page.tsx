@@ -13,7 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { SongRow } from "@/components/song-row";
 import { PlaylistOutput } from "@/components/playlist-output";
 import { useSettings } from "@/components/settings-context";
+import { getProvider } from "@/lib/llm/models";
 import type { SongEntry } from "@/lib/types";
+import type { ProviderKey } from "@/lib/llm/types";
 
 const GENRE_CHIPS = [
   "Heavy Metal", "Classic Rock", "Hip-Hop", "Indie", "Pop", "Jazz",
@@ -23,15 +25,6 @@ const GENRE_CHIPS = [
 const MOOD_CHIPS = [
   "Energetic", "Chill", "Sad", "Happy", "Focus", "Party",
   "Workout", "Late Night", "Road Trip", "Romantic",
-];
-
-const GEMINI_MODELS = [
-  { value: "auto", label: "Auto (fallback chain)" },
-  { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
-  { value: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash Lite" },
-  { value: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite" },
-  { value: "gemini-1.5-flash-latest", label: "Gemini 1.5 Flash (latest)" },
-  { value: "gemini-1.5-flash-8b-latest", label: "Gemini 1.5 Flash 8B (latest)" },
 ];
 
 const EXAMPLE_PROMPTS = [
@@ -54,7 +47,6 @@ export default function AIPlaylistPage() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState<"input" | "review">("input");
-  const [model, setModel] = useState("auto");
   const [usedModel, setUsedModel] = useState("");
 
   function appendChip(chip: string) {
@@ -62,8 +54,15 @@ export default function AIPlaylistPage() {
   }
 
   async function generatePlaylist() {
-    if (!keys.gemini) {
-      setError("Please add your Gemini API key in Settings (top right).");
+    const provider = (keys.selectedProvider || "gemini") as ProviderKey;
+    const providerMeta = getProvider(provider);
+    const apiKey = provider === "gemini" ? keys.gemini
+      : provider === "openai" ? keys.openai
+      : provider === "anthropic" ? keys.anthropic
+      : undefined;
+
+    if (provider !== "ollama" && !apiKey) {
+      setError(`Please add your ${providerMeta.name} API key in Settings.`);
       return;
     }
     if (!prompt.trim()) {
@@ -77,12 +76,18 @@ export default function AIPlaylistPage() {
       const res = await fetch("/api/llm-playlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, apiKey: keys.gemini, model: model === "auto" ? undefined : model }),
+        body: JSON.stringify({
+          prompt,
+          provider,
+          model: keys.selectedModel || providerMeta.defaultModel,
+          apiKey,
+          baseUrl: provider === "ollama" ? keys.ollamaBaseUrl : undefined,
+        }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      setUsedModel(data.model || "");
+      setUsedModel(data.model ? `${data.provider ?? provider}/${data.model}` : "");
       const entries: SongEntry[] = data.songs.map((s: { title: string; artist: string }) => ({
         id: nanoid(),
         title: s.title,
@@ -156,6 +161,8 @@ export default function AIPlaylistPage() {
     setError("");
     setUsedModel("");
   }
+
+  const activeProviderMeta = getProvider((keys.selectedProvider || "gemini") as ProviderKey);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -236,20 +243,12 @@ export default function AIPlaylistPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--fg-muted)' }}>Gemini model</label>
-              <select
-                value={model}
-                onChange={e => setModel(e.target.value)}
-                className="w-full h-9 rounded-lg px-3 text-sm outline-none cursor-pointer"
-                style={{ border: '1px solid var(--border)', background: 'var(--bg-input)', color: 'var(--fg)' }}
-              >
-                {GEMINI_MODELS.map(m => (
-                  <option key={m.value} value={m.value}>{m.label}</option>
-                ))}
-              </select>
-            </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs" style={{ background: 'var(--bg-input)', border: '1px solid var(--border)' }}>
+            <span className="text-base leading-none">{activeProviderMeta.icon}</span>
+            <span style={{ color: 'var(--fg-muted)' }}>{activeProviderMeta.name}</span>
+            <span className="mx-1" style={{ color: 'var(--fg-faint)' }}>·</span>
+            <span style={{ color: 'var(--fg)' }}>{keys.selectedModel || activeProviderMeta.defaultModel}</span>
+            <span className="ml-auto text-xs" style={{ color: 'var(--fg-faint)' }}>Change in Settings →</span>
           </div>
 
           <Button

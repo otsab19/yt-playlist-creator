@@ -8,6 +8,11 @@ export interface SongEntry {
 }
 
 export interface ApiKeys {
-  gemini: string;
   youtube: string;
+  gemini: string;
+  openai: string;
+  anthropic: string;
+  ollamaBaseUrl: string;
+  selectedProvider: string;
+  selectedModel: string;
 }

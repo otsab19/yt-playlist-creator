@@ -7,18 +7,28 @@ interface SettingsContextType {
   setKeys: (k: ApiKeys) => void;
 }
 
+export const DEFAULT_KEYS: ApiKeys = {
+  youtube: "",
+  gemini: "",
+  openai: "",
+  anthropic: "",
+  ollamaBaseUrl: "http://localhost:11434/v1",
+  selectedProvider: "gemini",
+  selectedModel: "gemini-2.0-flash",
+};
+
 const SettingsContext = createContext<SettingsContextType>({
-  keys: { gemini: "", youtube: "" },
+  keys: DEFAULT_KEYS,
   setKeys: () => {},
 });
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [keys, setKeysState] = useState<ApiKeys>({ gemini: "", youtube: "" });
+  const [keys, setKeysState] = useState<ApiKeys>(DEFAULT_KEYS);
 
   useEffect(() => {
     const stored = localStorage.getItem("yt_creator_keys");
     if (stored) {
-      try { setKeysState(JSON.parse(stored)); } catch {}
+      try { setKeysState({ ...DEFAULT_KEYS, ...JSON.parse(stored) }); } catch {}
     }
   }, []);
 
