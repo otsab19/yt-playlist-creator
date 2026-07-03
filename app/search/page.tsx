@@ -86,7 +86,7 @@ export default function ManualSearchPage() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      showSuccess(`Saved "${name}" to your YouTube account!`);
+      showSuccess(data.skipped > 0 ? `Saved "${name}" — ${data.added} added, ${data.skipped} skipped` : `Saved "${name}" (${data.added} songs) to YouTube!`);
       window.open(data.playlistUrl, "_blank");
     } catch (e: unknown) {
       showError(e instanceof Error ? e.message : "Failed to save playlist");

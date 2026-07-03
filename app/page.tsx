@@ -171,7 +171,10 @@ export default function AIPlaylistPage() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      showSuccess(`Saved "${name}" to your YouTube account!`);
+      const msg = data.skipped > 0
+        ? `Saved "${name}" — ${data.added} added, ${data.skipped} skipped`
+        : `Saved "${name}" (${data.added} songs) to YouTube!`;
+      showSuccess(msg);
       window.open(data.playlistUrl, "_blank");
     } catch (e: unknown) {
       showError(e instanceof Error ? e.message : "Failed to save playlist");
