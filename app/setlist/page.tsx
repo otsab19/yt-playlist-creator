@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SongRow } from "@/components/song-row";
 import { PlaylistOutput } from "@/components/playlist-output";
+import { useSession, signIn } from "next-auth/react";
 import { useSettings } from "@/components/settings-context";
 import { useToast } from "@/components/toast";
 import type { SongEntry } from "@/lib/types";
@@ -65,7 +66,9 @@ interface SetlistGroup {
 
 export default function SetlistPage() {
   const { keys } = useSettings();
-  const { error: showError } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
+  const { data: session } = useSession();
+  const [savingToYT, setSavingToYT] = useState<string | null>(null);
   const [groups, setGroups] = useState<SetlistGroup[]>([
     { id: nanoid(), artist: "Pantera", rawText: PANTERA_SETLIST, songs: [] },
     { id: nanoid(), artist: "Metallica", rawText: METALLICA_SETLIST, songs: [] },
@@ -161,6 +164,50 @@ export default function SetlistPage() {
   }
 
   const allSongs = groups.flatMap(g => g.songs);
+
+  async function saveGroupToYouTube(groupId: string, name: string) {
+    if (!session?.accessToken) { signIn("google"); return; }
+    const group = groups.find(g => g.id === groupId);
+    if (!group) return;
+    const videoIds = group.songs.filter(s => s.videoId && (s.status === "found" || s.status === "manual")).map(s => s.videoId!);
+    setSavingToYT(groupId);
+    try {
+      const res = await fetch("/api/youtube-save-playlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: session.accessToken, name, videoIds }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      showSuccess(`Saved "${name}" to your YouTube account!`);
+      window.open(data.playlistUrl, "_blank");
+    } catch (e: unknown) {
+      showError(e instanceof Error ? e.message : "Failed to save playlist");
+    } finally {
+      setSavingToYT(null);
+    }
+  }
+
+  async function saveAllToYouTube(name: string) {
+    if (!session?.accessToken) { signIn("google"); return; }
+    const videoIds = allSongs.filter(s => s.videoId && (s.status === "found" || s.status === "manual")).map(s => s.videoId!);
+    setSavingToYT("all");
+    try {
+      const res = await fetch("/api/youtube-save-playlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: session.accessToken, name, videoIds }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      showSuccess(`Saved "${name}" to your YouTube account!`);
+      window.open(data.playlistUrl, "_blank");
+    } catch (e: unknown) {
+      showError(e instanceof Error ? e.message : "Failed to save playlist");
+    } finally {
+      setSavingToYT(null);
+    }
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
@@ -267,6 +314,8 @@ export default function SetlistPage() {
                 key={group.id}
                 songs={group.songs}
                 title={`${group.artist || "Band"} Playlist`}
+                onSaveToYouTube={(name) => saveGroupToYouTube(group.id, name)}
+                savingToYouTube={savingToYT === group.id}
               />
             )
           ))}
@@ -274,6 +323,8 @@ export default function SetlistPage() {
             <PlaylistOutput
               songs={allSongs}
               title="Full Night Playlist (All Bands)"
+              onSaveToYouTube={saveAllToYouTube}
+              savingToYouTube={savingToYT === "all"}
             />
           )}
         </div>

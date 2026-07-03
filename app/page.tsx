@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SongRow } from "@/components/song-row";
 import { PlaylistOutput } from "@/components/playlist-output";
+import { useSession, signIn } from "next-auth/react";
 import { useSettings } from "@/components/settings-context";
 import { useToast } from "@/components/toast";
 import { getProvider } from "@/lib/llm/models";
@@ -41,11 +42,13 @@ function nanoid() {
 
 export default function AIPlaylistPage() {
   const { keys } = useSettings();
-  const { error: showError } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
+  const { data: session } = useSession();
   const [prompt, setPrompt] = useState("");
   const [songs, setSongs] = useState<SongEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [savingToYT, setSavingToYT] = useState(false);
   const [step, setStep] = useState<"input" | "review">("input");
   const [usedModel, setUsedModel] = useState("");
 
@@ -151,6 +154,30 @@ export default function AIPlaylistPage() {
 
   function handleRemove(id: string) {
     setSongs(prev => prev.filter(s => s.id !== id));
+  }
+
+  async function saveToYouTube(name: string) {
+    if (!session?.accessToken) {
+      signIn("google");
+      return;
+    }
+    const videoIds = songs.filter(s => s.videoId && (s.status === "found" || s.status === "manual")).map(s => s.videoId!);
+    setSavingToYT(true);
+    try {
+      const res = await fetch("/api/youtube-save-playlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: session.accessToken, name, videoIds }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      showSuccess(`Saved "${name}" to your YouTube account!`);
+      window.open(data.playlistUrl, "_blank");
+    } catch (e: unknown) {
+      showError(e instanceof Error ? e.message : "Failed to save playlist");
+    } finally {
+      setSavingToYT(false);
+    }
   }
 
   function reset() {
@@ -278,7 +305,12 @@ export default function AIPlaylistPage() {
             </Button>
           </div>
 
-          <PlaylistOutput songs={songs} title="AI Generated Playlist" />
+          <PlaylistOutput
+            songs={songs}
+            title="AI Generated Playlist"
+            onSaveToYouTube={saveToYouTube}
+            savingToYouTube={savingToYT}
+          />
 
           <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
             <div className="px-3 py-2 border-b text-xs font-medium uppercase tracking-wider" style={{ borderColor: 'var(--border)', color: 'var(--fg-faint)' }}>

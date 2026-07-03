@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles, Mic2, Search } from "lucide-react";
+import { Sparkles, Mic2, Search, LogIn, LogOut } from "lucide-react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -14,6 +16,7 @@ const NAV_ITEMS = [
 
 export function Nav() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
     <header className="sticky top-0 z-30 border-b backdrop-blur-md transition-colors"
@@ -61,6 +64,35 @@ export function Nav() {
         <div className="flex items-center gap-1">
           <ThemeToggle />
           <SettingsDialog />
+          {session ? (
+            <div className="flex items-center gap-1.5">
+              {session.user?.image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={session.user.image} alt="" className="w-6 h-6 rounded-full" />
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => signOut()}
+                title={`Signed in as ${session.user?.email}`}
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Sign out</span>
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-xs"
+              onClick={() => signIn("google")}
+              title="Sign in to save playlists to YouTube"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sign in</span>
+            </Button>
+          )}
         </div>
       </div>
     </header>

@@ -4,6 +4,7 @@ import { Search, Plus, Loader2, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlaylistOutput } from "@/components/playlist-output";
+import { useSession, signIn } from "next-auth/react";
 import { useSettings } from "@/components/settings-context";
 import { useToast } from "@/components/toast";
 import type { SongEntry } from "@/lib/types";
@@ -21,10 +22,12 @@ interface SearchResult {
 
 export default function ManualSearchPage() {
   const { keys } = useSettings();
-  const { error: showError } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
+  const { data: session } = useSession();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [savingToYT, setSavingToYT] = useState(false);
   const [playlist, setPlaylist] = useState<SongEntry[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -69,6 +72,27 @@ export default function ManualSearchPage() {
 
   function removeFromPlaylist(id: string) {
     setPlaylist(prev => prev.filter(s => s.id !== id));
+  }
+
+  async function saveToYouTube(name: string) {
+    if (!session?.accessToken) { signIn("google"); return; }
+    const videoIds = playlist.filter(s => s.videoId).map(s => s.videoId!);
+    setSavingToYT(true);
+    try {
+      const res = await fetch("/api/youtube-save-playlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: session.accessToken, name, videoIds }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      showSuccess(`Saved "${name}" to your YouTube account!`);
+      window.open(data.playlistUrl, "_blank");
+    } catch (e: unknown) {
+      showError(e instanceof Error ? e.message : "Failed to save playlist");
+    } finally {
+      setSavingToYT(false);
+    }
   }
 
   const inPlaylist = (videoId: string) => playlist.some(s => s.videoId === videoId);
@@ -191,7 +215,12 @@ export default function ManualSearchPage() {
 
             {playlist.length > 0 && (
               <div className="p-3 border-t" style={{ borderColor: 'var(--border)' }}>
-                <PlaylistOutput songs={playlist} title="My Playlist" />
+                <PlaylistOutput
+                  songs={playlist}
+                  title="My Playlist"
+                  onSaveToYouTube={saveToYouTube}
+                  savingToYouTube={savingToYT}
+                />
               </div>
             )}
           </div>

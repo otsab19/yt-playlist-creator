@@ -5,6 +5,7 @@ import { SettingsProvider } from "@/components/settings-context";
 import { Nav } from "@/components/nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/toast";
+import { SessionProvider } from "@/components/session-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,14 +37,16 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <ToastProvider>
-            <SettingsProvider>
-              <Nav />
-              <main className="flex-1">{children}</main>
-            </SettingsProvider>
-          </ToastProvider>
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider>
+            <ToastProvider>
+              <SettingsProvider>
+                <Nav />
+                <main className="flex-1">{children}</main>
+              </SettingsProvider>
+            </ToastProvider>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );
