@@ -99,8 +99,8 @@ export default function SetlistPage() {
   }
 
   async function searchAll() {
-    if (!keys.youtube) {
-      showError("Please add your YouTube API key in Settings.");
+    if (!keys.youtube && !session?.accessToken) {
+      showError("Sign in with Google or add a YouTube API key in Settings.");
       return;
     }
     setSearching(true);
@@ -125,7 +125,8 @@ export default function SetlistPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   query: `${group.artist || ""} ${song.title} official`,
-                  apiKey: keys.youtube,
+                  apiKey: keys.youtube || undefined,
+                  accessToken: session?.accessToken || undefined,
                 }),
               });
               const data = await res.json();
@@ -299,9 +300,9 @@ export default function SetlistPage() {
               {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               {searching ? "Searching…" : "Search All on YouTube"}
             </Button>
-            {!keys.youtube && (
+            {!keys.youtube && !session?.accessToken && (
               <p className="text-xs self-center" style={{ color: 'var(--fg-faint)' }}>
-                ⚠ Add YouTube API key in Settings first
+                ⚠ Sign in or add YouTube API key in Settings
               </p>
             )}
             <Button variant="outline" className="h-10" onClick={() => { setParsed(false); }}>

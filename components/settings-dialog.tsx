@@ -55,7 +55,7 @@ export function SettingsDialog() {
   function handleOpen(v: boolean) {
     if (v) {
       setDraft({ ...DEFAULT_KEYS, ...keys });
-      setActiveTab(!keys.youtube ? "youtube" : "llm");
+      setActiveTab("llm");
     }
     setOpen(v);
   }

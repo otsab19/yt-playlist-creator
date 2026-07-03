@@ -106,8 +106,8 @@ export default function AIPlaylistPage() {
   }
 
   async function searchAllSongs(list: SongEntry[]) {
-    if (!keys.youtube) {
-      showError("Please add your YouTube API key in Settings to search videos.");
+    if (!keys.youtube && !session?.accessToken) {
+      showError("Sign in with Google or add a YouTube API key in Settings.");
       return;
     }
     setSearching(true);
@@ -129,7 +129,8 @@ export default function AIPlaylistPage() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 query: `${song.artist} ${song.title} official`,
-                apiKey: keys.youtube,
+                apiKey: keys.youtube || undefined,
+                accessToken: session?.accessToken || undefined,
               }),
             });
             const data = await res.json();

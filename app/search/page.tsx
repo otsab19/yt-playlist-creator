@@ -33,8 +33,8 @@ export default function ManualSearchPage() {
 
   async function doSearch() {
     if (!query.trim()) return;
-    if (!keys.youtube) {
-      showError("Please add your YouTube API key in Settings.");
+    if (!keys.youtube && !session?.accessToken) {
+      showError("Sign in with Google or add a YouTube API key in Settings.");
       return;
     }
     setSearching(true);
@@ -44,7 +44,11 @@ export default function ManualSearchPage() {
       const res = await fetch("/api/youtube-search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: query.trim(), apiKey: keys.youtube }),
+        body: JSON.stringify({
+          query: query.trim(),
+          apiKey: keys.youtube || undefined,
+          accessToken: session?.accessToken || undefined,
+        }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);

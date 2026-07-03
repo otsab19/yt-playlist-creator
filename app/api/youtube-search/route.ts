@@ -1,20 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const { query, apiKey } = await req.json();
+  const { query, apiKey, accessToken } = await req.json();
 
-  if (!apiKey) {
-    return NextResponse.json({ error: "YouTube API key is required" }, { status: 400 });
+  if (!apiKey && !accessToken) {
+    return NextResponse.json({ error: "Sign in with Google or add a YouTube API key in Settings to search." }, { status: 400 });
   }
 
   if (!query) {
     return NextResponse.json({ error: "Query is required" }, { status: 400 });
   }
 
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=5&key=${apiKey}`;
+  const baseUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=5`;
+  const url = apiKey ? `${baseUrl}&key=${apiKey}` : baseUrl;
 
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, accessToken ? {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    } : undefined);
     const data = await res.json();
 
     if (data.error) {
