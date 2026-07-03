@@ -53,7 +53,10 @@ export function SettingsDialog() {
   const [activeTab, setActiveTab] = useState<"llm" | "youtube">("llm");
 
   function handleOpen(v: boolean) {
-    if (v) setDraft({ ...DEFAULT_KEYS, ...keys });
+    if (v) {
+      setDraft({ ...DEFAULT_KEYS, ...keys });
+      setActiveTab(!keys.youtube ? "youtube" : "llm");
+    }
     setOpen(v);
   }
 
@@ -72,7 +75,8 @@ export function SettingsDialog() {
   }
 
   const selectedMeta = getProvider((draft.selectedProvider || "gemini") as ProviderKey);
-  const hasAnyKey = !!(keys.gemini || keys.openai || keys.anthropic || keys.youtube);
+  const hasLLMKey = !!(keys.gemini || keys.openai || keys.anthropic);
+  const missingYouTube = !keys.youtube;
 
   return (
     <Dialog.Root open={open} onOpenChange={handleOpen}>
@@ -80,7 +84,10 @@ export function SettingsDialog() {
         <Button variant="ghost" size="sm" className="gap-1.5">
           <Settings className="w-4 h-4" />
           <span className="hidden sm:inline">Settings</span>
-          {hasAnyKey && <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />}
+          {missingYouTube
+            ? <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block" title="YouTube API key missing" />
+            : hasLLMKey && <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+          }
         </Button>
       </Dialog.Trigger>
 

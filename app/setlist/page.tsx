@@ -294,11 +294,16 @@ export default function SetlistPage() {
               variant="primary"
               className="h-10"
               onClick={searchAll}
-              disabled={searching || !keys.youtube}
+              disabled={searching}
             >
               {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               {searching ? "Searching…" : "Search All on YouTube"}
             </Button>
+            {!keys.youtube && (
+              <p className="text-xs self-center" style={{ color: 'var(--fg-faint)' }}>
+                ⚠ Add YouTube API key in Settings first
+              </p>
+            )}
             <Button variant="outline" className="h-10" onClick={() => { setParsed(false); }}>
               ← Edit Setlists
             </Button>

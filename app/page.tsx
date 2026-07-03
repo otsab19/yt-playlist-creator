@@ -297,7 +297,7 @@ export default function AIPlaylistPage() {
               variant="outline"
               size="sm"
               onClick={() => searchAllSongs(songs)}
-              disabled={searching || !keys.youtube}
+              disabled={searching}
             >
               {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               {searching ? "Searching…" : "Search YouTube"}
