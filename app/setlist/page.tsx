@@ -104,6 +104,7 @@ export default function SetlistPage() {
       return;
     }
     setSearching(true);
+    let shownError = false;
 
     const allGroups = groups.map(g => ({ ...g, songs: [...g.songs] }));
 
@@ -135,8 +136,12 @@ export default function SetlistPage() {
               group.songs[idx] = first
                 ? { ...group.songs[idx], videoId: first.videoId, videoTitle: first.title, status: "found" }
                 : { ...group.songs[idx], status: "not_found" };
-            } catch {
+            } catch (e: unknown) {
               group.songs[idx] = { ...group.songs[idx], status: "not_found" };
+              if (!shownError) {
+                shownError = true;
+                showError(e instanceof Error ? e.message : "YouTube search failed");
+              }
             }
             setGroups(allGroups.map(g => ({ ...g })));
           })

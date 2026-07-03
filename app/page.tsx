@@ -111,6 +111,7 @@ export default function AIPlaylistPage() {
       return;
     }
     setSearching(true);
+    let shownError = false;
 
     const updated = [...list];
     const BATCH = 3;
@@ -139,8 +140,12 @@ export default function AIPlaylistPage() {
             updated[idx] = first
               ? { ...updated[idx], videoId: first.videoId, videoTitle: first.title, status: "found" }
               : { ...updated[idx], status: "not_found" };
-          } catch {
+          } catch (e: unknown) {
             updated[idx] = { ...updated[idx], status: "not_found" };
+            if (!shownError) {
+              shownError = true;
+              showError(e instanceof Error ? e.message : "YouTube search failed");
+            }
           }
           setSongs([...updated]);
         })

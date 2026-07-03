@@ -21,9 +21,14 @@ export async function POST(req: NextRequest) {
     const data = await res.json();
 
     if (data.error) {
-      console.error("YouTube API error:", JSON.stringify(data.error));
-      const msg = `${data.error.message} (code: ${data.error.code}, status: ${data.error.status})`;
-      return NextResponse.json({ error: msg, details: data.error }, { status: 400 });
+      console.error("[youtube-search] API error:", JSON.stringify(data.error));
+      const msg = data.error.message ?? JSON.stringify(data.error);
+      return NextResponse.json({ error: msg }, { status: 400 });
+    }
+
+    if (!data.items) {
+      console.error("[youtube-search] Unexpected response:", JSON.stringify(data));
+      return NextResponse.json({ error: `Unexpected YouTube response: ${JSON.stringify(data)}` }, { status: 500 });
     }
 
     const results = (data.items || []).map((item: {
