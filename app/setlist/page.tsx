@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SongRow } from "@/components/song-row";
 import { PlaylistOutput } from "@/components/playlist-output";
 import { useSession, signIn } from "next-auth/react";
+import { SignInBanner } from "@/components/sign-in-banner";
 import { useSettings } from "@/components/settings-context";
 import { useToast } from "@/components/toast";
 import type { SongEntry } from "@/lib/types";
@@ -217,6 +218,7 @@ export default function SetlistPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <SignInBanner />
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--fg)' }}>
           <Mic2 className="w-6 h-6 text-orange-400" />

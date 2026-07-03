@@ -5,7 +5,6 @@ import { Sparkles, Mic2, Search, LogIn, LogOut } from "lucide-react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -19,12 +18,15 @@ export function Nav() {
   const { data: session } = useSession();
 
   return (
-    <header className="sticky top-0 z-30 border-b backdrop-blur-md transition-colors"
-      style={{ borderColor: "var(--border)", background: "color-mix(in srgb, var(--bg) 85%, transparent)" }}
+    <header
+      className="sticky top-0 z-30 border-b backdrop-blur-md transition-colors"
+      style={{ borderColor: "var(--border)", background: "color-mix(in srgb, var(--bg) 88%, transparent)" }}
     >
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-1">
-        <Link href="/" className="flex items-center gap-2 mr-5 shrink-0">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2">
+
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 mr-4 shrink-0">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
             style={{ background: "linear-gradient(135deg, #6366f1, #ec4899)" }}
           >
             <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4">
@@ -36,6 +38,7 @@ export function Nav() {
           </span>
         </Link>
 
+        {/* Nav links */}
         <nav className="flex items-center gap-0.5 flex-1">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
@@ -45,14 +48,12 @@ export function Nav() {
                 href={href}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
-                  active
-                    ? "text-white"
-                    : "hover:opacity-100 opacity-60"
+                  active ? "text-white" : "hover:opacity-80"
                 )}
-                style={active ? {
-                  background: "linear-gradient(135deg, #6366f1, #ec4899)",
-                  color: "white",
-                } : { color: "var(--fg)" }}
+                style={active
+                  ? { background: "linear-gradient(135deg, #6366f1, #ec4899)", color: "white" }
+                  : { color: "var(--fg-muted)" }
+                }
               >
                 <Icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{label}</span>
@@ -61,37 +62,45 @@ export function Nav() {
           })}
         </nav>
 
-        <div className="flex items-center gap-1">
+        {/* Right actions */}
+        <div className="flex items-center gap-1 shrink-0">
           <ThemeToggle />
           <SettingsDialog />
+
           {session ? (
-            <div className="flex items-center gap-1.5">
-              {session.user?.image && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={session.user.image} alt="" className="w-6 h-6 rounded-full" />
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1.5 text-xs"
+            /* Signed in — avatar + name + sign out */
+            <div className="flex items-center gap-2 pl-1 ml-1 border-l" style={{ borderColor: "var(--border)" }}>
+              {session.user?.image
+                ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-2 ring-indigo-500/40 shrink-0" />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                    {session.user?.name?.[0] ?? "?"}
+                  </div>
+                )
+              }
+              <button
                 onClick={() => signOut()}
-                title={`Signed in as ${session.user?.email}`}
+                className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-lg transition-colors hover:bg-red-500/10 hover:text-red-400 cursor-pointer hidden sm:flex"
+                style={{ color: "var(--fg-muted)" }}
+                title={`Signed in as ${session.user?.email} — click to sign out`}
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Sign out</span>
-              </Button>
+                Sign out
+              </button>
             </div>
           ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 text-xs"
+            /* Not signed in — prominent sign-in button */
+            <button
               onClick={() => signIn("google")}
-              title="Sign in to save playlists to YouTube"
+              className="flex items-center gap-2 ml-1 pl-2 pr-3 py-1.5 rounded-lg text-xs font-medium border transition-all hover:border-indigo-500 hover:text-indigo-400 cursor-pointer"
+              style={{ color: "var(--fg-muted)", borderColor: "var(--border-2)" }}
+              title="Sign in with Google to search & save playlists to YouTube"
             >
               <LogIn className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Sign in</span>
-            </Button>
+              <span>Sign in</span>
+            </button>
           )}
         </div>
       </div>

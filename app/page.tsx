@@ -13,6 +13,7 @@ import { SongRow } from "@/components/song-row";
 import { PlaylistOutput } from "@/components/playlist-output";
 import { useSession, signIn } from "next-auth/react";
 import { useSettings } from "@/components/settings-context";
+import { SignInBanner } from "@/components/sign-in-banner";
 import { useToast } from "@/components/toast";
 import { getProvider } from "@/lib/llm/models";
 import type { SongEntry } from "@/lib/types";
@@ -199,6 +200,7 @@ export default function AIPlaylistPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
+      <SignInBanner />
       {step === "input" && (
         <div className="space-y-6">
           <div>

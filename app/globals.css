@@ -18,18 +18,18 @@
 
 /* ── Dark mode ── */
 .dark {
-  --bg:        #09090e;
-  --bg-card:   #111118;
-  --bg-input:  #1a1a24;
-  --border:    #222230;
-  --border-2:  #2e2e40;
-  --fg:        #f0f0f8;
-  --fg-muted:  #7878a0;
-  --fg-faint:  #44445a;
+  --bg:        #0c0c12;
+  --bg-card:   #13131c;
+  --bg-input:  #1c1c28;
+  --border:    #2a2a3a;
+  --border-2:  #38384e;
+  --fg:        #f2f2fa;
+  --fg-muted:  #a0a0c0;
+  --fg-faint:  #606080;
   --accent:    #818cf8;
   --accent-2:  #f472b6;
   --scrollbar: #2e2e40;
-  --scrollbar-hover: #44445a;
+  --scrollbar-hover: #4a4a66;
 }
 
 @theme inline {

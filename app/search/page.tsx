@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlaylistOutput } from "@/components/playlist-output";
 import { useSession, signIn } from "next-auth/react";
+import { SignInBanner } from "@/components/sign-in-banner";
 import { useSettings } from "@/components/settings-context";
 import { useToast } from "@/components/toast";
 import type { SongEntry } from "@/lib/types";
@@ -103,6 +104,7 @@ export default function ManualSearchPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
+      <SignInBanner />
       <div className="mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--fg)' }}>
           <Search className="w-6 h-6 text-green-400" />
