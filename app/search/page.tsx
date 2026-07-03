@@ -1,0 +1,209 @@
+"use client";
+import React, { useState, useRef } from "react";
+import { Search, Plus, Loader2, AlertCircle, X, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { PlaylistOutput } from "@/components/playlist-output";
+import { useSettings } from "@/components/settings-context";
+import type { SongEntry } from "@/lib/types";
+
+function nanoid() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+interface SearchResult {
+  videoId: string;
+  title: string;
+  channel: string;
+  thumbnail?: string;
+}
+
+export default function ManualSearchPage() {
+  const { keys } = useSettings();
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [error, setError] = useState("");
+  const [playlist, setPlaylist] = useState<SongEntry[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function doSearch() {
+    if (!query.trim()) return;
+    if (!keys.youtube) {
+      setError("Please add your YouTube API key in Settings.");
+      return;
+    }
+    setError("");
+    setSearching(true);
+    setResults([]);
+
+    try {
+      const res = await fetch("/api/youtube-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: query.trim(), apiKey: keys.youtube }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setResults(data.results || []);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Search failed");
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  function addToPlaylist(result: SearchResult) {
+    if (playlist.find(s => s.videoId === result.videoId)) return;
+    setPlaylist(prev => [
+      ...prev,
+      {
+        id: nanoid(),
+        title: result.title,
+        videoId: result.videoId,
+        videoTitle: result.title,
+        status: "found",
+      },
+    ]);
+  }
+
+  function removeFromPlaylist(id: string) {
+    setPlaylist(prev => prev.filter(s => s.id !== id));
+  }
+
+  const inPlaylist = (videoId: string) => playlist.some(s => s.videoId === videoId);
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <Search className="w-6 h-6 text-green-400" />
+          Manual Song Search
+        </h1>
+        <p className="text-neutral-500 text-sm mt-1">
+          Search YouTube and build a playlist song by song.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6">
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              ref={inputRef}
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search for a song, artist, or album…"
+              onKeyDown={e => { if (e.key === "Enter") doSearch(); }}
+              className="flex-1"
+            />
+            <Button variant="primary" onClick={doSearch} disabled={searching}>
+              {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              Search
+            </Button>
+          </div>
+
+          {error && (
+            <div className="flex items-start gap-2 text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-lg px-3 py-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              {error}
+            </div>
+          )}
+
+          {results.length > 0 && (
+            <div className="rounded-xl border border-neutral-800 overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-neutral-800 text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                Results
+              </div>
+              <div className="divide-y divide-neutral-800/50">
+                {results.map(result => (
+                  <div key={result.videoId} className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors group">
+                    {result.thumbnail && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={result.thumbnail}
+                        alt=""
+                        className="w-14 h-10 object-cover rounded flex-shrink-0"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-neutral-200 truncate">{result.title}</p>
+                      <p className="text-xs text-neutral-500 truncate">{result.channel}</p>
+                    </div>
+                    <Button
+                      variant={inPlaylist(result.videoId) ? "success" : "outline"}
+                      size="sm"
+                      onClick={() => addToPlaylist(result)}
+                      disabled={inPlaylist(result.videoId)}
+                      className="shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      {inPlaylist(result.videoId) ? "Added" : "Add"}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {!searching && results.length === 0 && query && (
+            <p className="text-center text-neutral-600 text-sm py-8">No results. Try a different search.</p>
+          )}
+
+          {!query && (
+            <div className="text-center py-12 text-neutral-700">
+              <Search className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Search for songs to build your playlist</p>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-xl border border-neutral-800 overflow-hidden sticky top-20">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800 bg-neutral-900/50">
+              <span className="text-sm font-semibold text-neutral-200">My Playlist</span>
+              <span className="ml-1 text-xs text-neutral-600">{playlist.length} songs</span>
+              {playlist.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="ml-auto h-7 text-xs hover:text-red-400"
+                  onClick={() => setPlaylist([])}
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Clear
+                </Button>
+              )}
+            </div>
+
+            {playlist.length === 0 ? (
+              <div className="px-4 py-10 text-center text-neutral-700">
+                <p className="text-sm">Add songs from search results</p>
+              </div>
+            ) : (
+              <div className="max-h-[60vh] overflow-y-auto divide-y divide-neutral-800/50">
+                {playlist.map((song, i) => (
+                  <div key={song.id} className="flex items-center gap-2 px-3 py-2.5 group hover:bg-white/[0.02]">
+                    <span className="text-xs text-neutral-600 w-5 text-right shrink-0">{i + 1}</span>
+                    <p className="text-xs text-neutral-300 flex-1 min-w-0 truncate">{song.title}</p>
+                    <button
+                      onClick={() => removeFromPlaylist(song.id)}
+                      className="text-neutral-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {playlist.length > 0 && (
+              <div className="p-3 border-t border-neutral-800">
+                <PlaylistOutput songs={playlist} title="My Playlist" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
