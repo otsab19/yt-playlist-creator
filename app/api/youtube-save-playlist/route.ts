@@ -33,19 +33,22 @@ export async function POST(req: NextRequest) {
 
     const playlistId: string = playlist.id;
 
-    // 2. Insert all videos in parallel (position omitted — YouTube sequences them on its end)
-    const results = await Promise.allSettled(
-      videoIds.map((videoId: string) =>
-        ytFetch("/playlistItems?part=snippet", accessToken, {
+    // 2. Insert videos sequentially — parallel inserts cause YouTube to silently drop items
+    let skipped = 0;
+    for (const videoId of videoIds) {
+      try {
+        await ytFetch("/playlistItems?part=snippet", accessToken, {
           snippet: {
             playlistId,
             resourceId: { kind: "youtube#video", videoId },
           },
-        })
-      )
-    );
-
-    const skipped = results.filter(r => r.status === "rejected").length;
+        });
+      } catch {
+        skipped++;
+      }
+      // Small delay to avoid rate limiting
+      await new Promise(r => setTimeout(r, 150));
+    }
     const playlistUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
     return NextResponse.json({ playlistId, playlistUrl, added: videoIds.length - skipped, skipped });
   } catch (err: unknown) {
