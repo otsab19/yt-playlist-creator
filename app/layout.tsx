@@ -4,6 +4,7 @@ import "./globals.css";
 import { SettingsProvider } from "@/components/settings-context";
 import { Nav } from "@/components/nav";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ToastProvider } from "@/components/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,10 +37,12 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <SettingsProvider>
-            <Nav />
-            <main className="flex-1">{children}</main>
-          </SettingsProvider>
+          <ToastProvider>
+            <SettingsProvider>
+              <Nav />
+              <main className="flex-1">{children}</main>
+            </SettingsProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

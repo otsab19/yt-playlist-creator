@@ -6,13 +6,13 @@ import {
   RefreshCw,
   ChevronRight,
   Loader2,
-  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SongRow } from "@/components/song-row";
 import { PlaylistOutput } from "@/components/playlist-output";
 import { useSettings } from "@/components/settings-context";
+import { useToast } from "@/components/toast";
 import { getProvider } from "@/lib/llm/models";
 import type { SongEntry } from "@/lib/types";
 import type { ProviderKey } from "@/lib/llm/types";
@@ -41,11 +41,11 @@ function nanoid() {
 
 export default function AIPlaylistPage() {
   const { keys } = useSettings();
+  const { error: showError } = useToast();
   const [prompt, setPrompt] = useState("");
   const [songs, setSongs] = useState<SongEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
-  const [error, setError] = useState("");
   const [step, setStep] = useState<"input" | "review">("input");
   const [usedModel, setUsedModel] = useState("");
 
@@ -62,14 +62,13 @@ export default function AIPlaylistPage() {
       : undefined;
 
     if (provider !== "ollama" && !apiKey) {
-      setError(`Please add your ${providerMeta.name} API key in Settings.`);
+      showError(`Please add your ${providerMeta.name} API key in Settings.`);
       return;
     }
     if (!prompt.trim()) {
-      setError("Describe the playlist you want.");
+      showError("Describe the playlist you want.");
       return;
     }
-    setError("");
     setLoading(true);
 
     try {
@@ -97,7 +96,7 @@ export default function AIPlaylistPage() {
       setSongs(entries);
       setStep("review");
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to generate playlist");
+      showError(e instanceof Error ? e.message : "Failed to generate playlist");
     } finally {
       setLoading(false);
     }
@@ -105,11 +104,10 @@ export default function AIPlaylistPage() {
 
   async function searchAllSongs(list: SongEntry[]) {
     if (!keys.youtube) {
-      setError("Please add your YouTube API key in Settings to search videos.");
+      showError("Please add your YouTube API key in Settings to search videos.");
       return;
     }
     setSearching(true);
-    setError("");
 
     const updated = [...list];
     const BATCH = 3;
@@ -158,7 +156,6 @@ export default function AIPlaylistPage() {
   function reset() {
     setSongs([]);
     setStep("input");
-    setError("");
     setUsedModel("");
   }
 
@@ -177,13 +174,6 @@ export default function AIPlaylistPage() {
               Describe your vibe and let Gemini curate the perfect playlist.
             </p>
           </div>
-
-          {error && (
-            <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              {error}
-            </div>
-          )}
 
           <div className="space-y-2">
             <label className="text-xs font-medium" style={{ color: 'var(--fg-muted)' }}>Moods</label>
@@ -287,13 +277,6 @@ export default function AIPlaylistPage() {
               New
             </Button>
           </div>
-
-          {error && (
-            <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              {error}
-            </div>
-          )}
 
           <PlaylistOutput songs={songs} title="AI Generated Playlist" />
 

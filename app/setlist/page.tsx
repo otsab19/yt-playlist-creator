@@ -1,12 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import { Mic2, Wand2, RefreshCw, Loader2, AlertCircle, Plus, X } from "lucide-react";
+import { Mic2, Wand2, RefreshCw, Loader2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SongRow } from "@/components/song-row";
 import { PlaylistOutput } from "@/components/playlist-output";
 import { useSettings } from "@/components/settings-context";
+import { useToast } from "@/components/toast";
 import type { SongEntry } from "@/lib/types";
 
 function nanoid() {
@@ -64,12 +65,12 @@ interface SetlistGroup {
 
 export default function SetlistPage() {
   const { keys } = useSettings();
+  const { error: showError } = useToast();
   const [groups, setGroups] = useState<SetlistGroup[]>([
     { id: nanoid(), artist: "Pantera", rawText: PANTERA_SETLIST, songs: [] },
     { id: nanoid(), artist: "Metallica", rawText: METALLICA_SETLIST, songs: [] },
   ]);
   const [searching, setSearching] = useState(false);
-  const [error, setError] = useState("");
   const [parsed, setParsed] = useState(false);
 
   function addGroup() {
@@ -96,11 +97,10 @@ export default function SetlistPage() {
 
   async function searchAll() {
     if (!keys.youtube) {
-      setError("Please add your YouTube API key in Settings.");
+      showError("Please add your YouTube API key in Settings.");
       return;
     }
     setSearching(true);
-    setError("");
 
     const allGroups = groups.map(g => ({ ...g, songs: [...g.songs] }));
 
@@ -174,12 +174,6 @@ export default function SetlistPage() {
         </p>
       </div>
 
-      {error && (
-        <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2.5">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          {error}
-        </div>
-      )}
 
       <div className="space-y-4">
         {groups.map((group, gi) => (
@@ -258,7 +252,7 @@ export default function SetlistPage() {
               {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               {searching ? "Searching…" : "Search All on YouTube"}
             </Button>
-            <Button variant="outline" className="h-10" onClick={() => { setParsed(false); setError(""); }}>
+            <Button variant="outline" className="h-10" onClick={() => { setParsed(false); }}>
               ← Edit Setlists
             </Button>
           </>

@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Search, Plus, Loader2, AlertCircle, X, Trash2 } from "lucide-react";
+import { Search, Plus, Loader2, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlaylistOutput } from "@/components/playlist-output";
 import { useSettings } from "@/components/settings-context";
+import { useToast } from "@/components/toast";
 import type { SongEntry } from "@/lib/types";
 
 function nanoid() {
@@ -20,20 +21,19 @@ interface SearchResult {
 
 export default function ManualSearchPage() {
   const { keys } = useSettings();
+  const { error: showError } = useToast();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
-  const [error, setError] = useState("");
   const [playlist, setPlaylist] = useState<SongEntry[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function doSearch() {
     if (!query.trim()) return;
     if (!keys.youtube) {
-      setError("Please add your YouTube API key in Settings.");
+      showError("Please add your YouTube API key in Settings.");
       return;
     }
-    setError("");
     setSearching(true);
     setResults([]);
 
@@ -47,7 +47,7 @@ export default function ManualSearchPage() {
       if (data.error) throw new Error(data.error);
       setResults(data.results || []);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Search failed");
+      showError(e instanceof Error ? e.message : "Search failed");
     } finally {
       setSearching(false);
     }
@@ -101,13 +101,6 @@ export default function ManualSearchPage() {
               Search
             </Button>
           </div>
-
-          {error && (
-            <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              {error}
-            </div>
-          )}
 
           {results.length > 0 && (
             <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
