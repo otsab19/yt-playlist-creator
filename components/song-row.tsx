@@ -45,19 +45,19 @@ export function SongRow({ song, index, onManualSet, onRemove, showGrip }: SongRo
 
   return (
     <div className="group">
-      <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
+      <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors">
         {showGrip && (
-          <GripVertical className="w-3.5 h-3.5 text-neutral-700 shrink-0 cursor-grab" />
+          <GripVertical className="w-3.5 h-3.5 shrink-0 cursor-grab" style={{ color: 'var(--fg-faint)' }} />
         )}
-        <span className="text-xs text-neutral-600 w-5 text-right shrink-0 tabular-nums">{index + 1}</span>
+        <span className="text-xs w-5 text-right shrink-0 tabular-nums" style={{ color: 'var(--fg-faint)' }}>{index + 1}</span>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-neutral-200 truncate">
+          <p className="text-sm truncate" style={{ color: 'var(--fg)' }}>
             {song.title}
-            {song.artist && <span className="text-neutral-500"> — {song.artist}</span>}
+            {song.artist && <span style={{ color: 'var(--fg-muted)' }}> — {song.artist}</span>}
           </p>
           {song.videoTitle && song.status !== "idle" && (
-            <p className="text-xs text-neutral-600 truncate mt-0.5">{song.videoTitle}</p>
+            <p className="text-xs truncate mt-0.5" style={{ color: 'var(--fg-faint)' }}>{song.videoTitle}</p>
           )}
         </div>
 

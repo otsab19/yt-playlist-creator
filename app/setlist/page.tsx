@@ -165,17 +165,17 @@ export default function SetlistPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+        <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--fg)' }}>
           <Mic2 className="w-6 h-6 text-orange-400" />
           Concert Setlist Playlist
         </h1>
-        <p className="text-neutral-500 text-sm mt-1">
+        <p className="text-sm mt-1" style={{ color: 'var(--fg-muted)' }}>
           Paste a concert setlist and build a YouTube playlist from it.
         </p>
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-lg px-3 py-2.5">
+        <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2.5">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           {error}
         </div>
@@ -183,8 +183,8 @@ export default function SetlistPage() {
 
       <div className="space-y-4">
         {groups.map((group, gi) => (
-          <div key={group.id} className="rounded-xl border border-neutral-800 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800 bg-neutral-900/50">
+          <div key={group.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+            <div className="flex items-center gap-2 px-4 py-3 border-b" style={{ borderColor: 'var(--border)', background: 'var(--bg-card)' }}>
               <Input
                 value={group.artist}
                 onChange={e => updateGroup(group.id, "artist", e.target.value)}
@@ -192,7 +192,7 @@ export default function SetlistPage() {
                 className="h-8 text-sm flex-1 max-w-xs"
                 disabled={parsed}
               />
-              <span className="text-xs text-neutral-600 ml-auto">Group {gi + 1}</span>
+              <span className="text-xs ml-auto" style={{ color: 'var(--fg-faint)' }}>Group {gi + 1}</span>
               <Button
                 variant="ghost"
                 size="icon"
@@ -214,9 +214,9 @@ export default function SetlistPage() {
                 />
               </div>
             ) : (
-              <div className="divide-y divide-neutral-800/50">
+              <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
                 {group.songs.length === 0 ? (
-                  <p className="px-4 py-3 text-xs text-neutral-600">No songs parsed from this setlist.</p>
+                  <p className="px-4 py-3 text-xs" style={{ color: 'var(--fg-faint)' }}>No songs parsed from this setlist.</p>
                 ) : (
                   group.songs.map((song, i) => (
                     <SongRow

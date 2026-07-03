@@ -162,30 +162,30 @@ export default function AIPlaylistPage() {
       {step === "input" && (
         <div className="space-y-6">
           <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--fg)' }}>
               <Sparkles className="w-6 h-6 text-yellow-400" />
               AI Playlist Generator
             </h1>
-            <p className="text-neutral-500 text-sm mt-1">
+            <p className="text-sm mt-1" style={{ color: 'var(--fg-muted)' }}>
               Describe your vibe and let Gemini curate the perfect playlist.
             </p>
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-lg px-3 py-2.5">
+            <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               {error}
             </div>
           )}
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-neutral-400">Moods</label>
+            <label className="text-xs font-medium" style={{ color: 'var(--fg-muted)' }}>Moods</label>
             <div className="flex flex-wrap gap-2">
               {MOOD_CHIPS.map(chip => (
                 <button
                   key={chip}
                   onClick={() => appendChip(chip)}
-                  className="px-3 py-1 rounded-full text-xs border border-neutral-700 text-neutral-400 hover:border-blue-500 hover:text-blue-300 transition-colors bg-transparent cursor-pointer"
+                  className="px-3 py-1 rounded-full text-xs border border-[var(--border-2)] text-[var(--fg-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors bg-transparent cursor-pointer"
                 >
                   {chip}
                 </button>
@@ -194,13 +194,13 @@ export default function AIPlaylistPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-neutral-400">Genres</label>
+            <label className="text-xs font-medium" style={{ color: 'var(--fg-muted)' }}>Genres</label>
             <div className="flex flex-wrap gap-2">
               {GENRE_CHIPS.map(chip => (
                 <button
                   key={chip}
                   onClick={() => appendChip(chip)}
-                  className="px-3 py-1 rounded-full text-xs border border-neutral-700 text-neutral-400 hover:border-purple-500 hover:text-purple-300 transition-colors bg-transparent cursor-pointer"
+                  className="px-3 py-1 rounded-full text-xs border border-[var(--border-2)] text-[var(--fg-muted)] hover:border-[var(--accent-2)] hover:text-[var(--accent-2)] transition-colors bg-transparent cursor-pointer"
                 >
                   {chip}
                 </button>
@@ -209,7 +209,7 @@ export default function AIPlaylistPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-neutral-400">Describe your playlist</label>
+            <label className="text-xs font-medium" style={{ color: 'var(--fg-muted)' }}>Describe your playlist</label>
             <Textarea
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
@@ -217,17 +217,17 @@ export default function AIPlaylistPage() {
               rows={4}
               onKeyDown={e => { if (e.key === "Enter" && e.metaKey) generatePlaylist(); }}
             />
-            <p className="text-xs text-neutral-600">Tip: mention artists, era, mood, activity for best results. ⌘+Enter to generate.</p>
+            <p className="text-xs" style={{ color: 'var(--fg-faint)' }}>Tip: mention artists, era, mood, activity for best results. ⌘+Enter to generate.</p>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-neutral-500">Examples</label>
+            <label className="text-xs font-medium" style={{ color: 'var(--fg-faint)' }}>Examples</label>
             <div className="space-y-1">
               {EXAMPLE_PROMPTS.map(ex => (
                 <button
                   key={ex}
                   onClick={() => setPrompt(ex)}
-                  className="w-full text-left text-xs text-neutral-500 hover:text-neutral-200 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left text-xs px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5" style={{ color: 'var(--fg-muted)' }}
                 >
                   <ChevronRight className="w-3 h-3 shrink-0" />
                   {ex}
@@ -238,11 +238,12 @@ export default function AIPlaylistPage() {
 
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Gemini model</label>
+              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--fg-muted)' }}>Gemini model</label>
               <select
                 value={model}
                 onChange={e => setModel(e.target.value)}
-                className="w-full h-9 rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-100 outline-none focus:border-neutral-500 cursor-pointer"
+                className="w-full h-9 rounded-lg px-3 text-sm outline-none cursor-pointer"
+                style={{ border: '1px solid var(--border)', background: 'var(--bg-input)', color: 'var(--fg)' }}
               >
                 {GEMINI_MODELS.map(m => (
                   <option key={m.value} value={m.value}>{m.label}</option>
@@ -266,12 +267,12 @@ export default function AIPlaylistPage() {
       {step === "review" && (
         <div className="space-y-5">
           <div className="flex items-center gap-3">
-            <button onClick={reset} className="text-neutral-500 hover:text-neutral-200 text-sm flex items-center gap-1 transition-colors cursor-pointer">
+            <button onClick={reset} className="text-sm flex items-center gap-1 transition-opacity opacity-60 hover:opacity-100 cursor-pointer" style={{ color: 'var(--fg)' }}>
               ← Back
             </button>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-white">{songs.length} Songs Generated</h2>
-              {usedModel && <p className="text-xs text-neutral-500 mt-0.5">via {usedModel}</p>}
+              <h2 className="text-lg font-bold" style={{ color: 'var(--fg)' }}>{songs.length} Songs Generated</h2>
+              {usedModel && <p className="text-xs mt-0.5" style={{ color: 'var(--fg-muted)' }}>via {usedModel}</p>}
             </div>
             <Button
               variant="outline"
@@ -289,7 +290,7 @@ export default function AIPlaylistPage() {
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-lg px-3 py-2.5">
+            <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               {error}
             </div>
@@ -297,11 +298,11 @@ export default function AIPlaylistPage() {
 
           <PlaylistOutput songs={songs} title="AI Generated Playlist" />
 
-          <div className="rounded-xl border border-neutral-800 overflow-hidden bg-neutral-900/30">
-            <div className="px-3 py-2 border-b border-neutral-800 text-xs font-medium text-neutral-500 uppercase tracking-wider">
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+            <div className="px-3 py-2 border-b text-xs font-medium uppercase tracking-wider" style={{ borderColor: 'var(--border)', color: 'var(--fg-faint)' }}>
               Song List
             </div>
-            <div className="divide-y divide-neutral-800/50">
+            <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
               {songs.map((song, i) => (
                 <SongRow
                   key={song.id}
@@ -315,7 +316,7 @@ export default function AIPlaylistPage() {
             </div>
           </div>
 
-          <div className="pt-2 text-xs text-neutral-600 text-center">
+          <div className="pt-2 text-xs text-center" style={{ color: 'var(--fg-faint)' }}>
             Click ✎ on any row to manually set a YouTube URL or video ID
           </div>
         </div>

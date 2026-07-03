@@ -76,11 +76,11 @@ export default function ManualSearchPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+        <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--fg)' }}>
           <Search className="w-6 h-6 text-green-400" />
           Manual Song Search
         </h1>
-        <p className="text-neutral-500 text-sm mt-1">
+        <p className="text-sm mt-1" style={{ color: 'var(--fg-muted)' }}>
           Search YouTube and build a playlist song by song.
         </p>
       </div>
@@ -103,20 +103,20 @@ export default function ManualSearchPage() {
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-lg px-3 py-2.5">
+            <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               {error}
             </div>
           )}
 
           {results.length > 0 && (
-            <div className="rounded-xl border border-neutral-800 overflow-hidden">
-              <div className="px-4 py-2.5 border-b border-neutral-800 text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+              <div className="px-4 py-2.5 border-b text-xs font-medium uppercase tracking-wider" style={{ borderColor: 'var(--border)', color: 'var(--fg-faint)' }}>
                 Results
               </div>
-              <div className="divide-y divide-neutral-800/50">
+              <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
                 {results.map(result => (
-                  <div key={result.videoId} className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors group">
+                  <div key={result.videoId} className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors group">
                     {result.thumbnail && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -126,8 +126,8 @@ export default function ManualSearchPage() {
                       />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-neutral-200 truncate">{result.title}</p>
-                      <p className="text-xs text-neutral-500 truncate">{result.channel}</p>
+                      <p className="text-sm truncate" style={{ color: 'var(--fg)' }}>{result.title}</p>
+                      <p className="text-xs truncate" style={{ color: 'var(--fg-muted)' }}>{result.channel}</p>
                     </div>
                     <Button
                       variant={inPlaylist(result.videoId) ? "success" : "outline"}
@@ -146,11 +146,11 @@ export default function ManualSearchPage() {
           )}
 
           {!searching && results.length === 0 && query && (
-            <p className="text-center text-neutral-600 text-sm py-8">No results. Try a different search.</p>
+            <p className="text-center text-sm py-8" style={{ color: 'var(--fg-faint)' }}>No results. Try a different search.</p>
           )}
 
           {!query && (
-            <div className="text-center py-12 text-neutral-700">
+            <div className="text-center py-12" style={{ color: 'var(--fg-faint)' }}>
               <Search className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p className="text-sm">Search for songs to build your playlist</p>
             </div>
@@ -158,10 +158,10 @@ export default function ManualSearchPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-xl border border-neutral-800 overflow-hidden sticky top-20">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800 bg-neutral-900/50">
-              <span className="text-sm font-semibold text-neutral-200">My Playlist</span>
-              <span className="ml-1 text-xs text-neutral-600">{playlist.length} songs</span>
+          <div className="rounded-xl overflow-hidden sticky top-20" style={{ border: '1px solid var(--border)' }}>
+            <div className="flex items-center gap-2 px-4 py-3 border-b" style={{ borderColor: 'var(--border)', background: 'var(--bg-card)' }}>
+              <span className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>My Playlist</span>
+              <span className="ml-1 text-xs" style={{ color: 'var(--fg-faint)' }}>{playlist.length} songs</span>
               {playlist.length > 0 && (
                 <Button
                   variant="ghost"
@@ -176,15 +176,15 @@ export default function ManualSearchPage() {
             </div>
 
             {playlist.length === 0 ? (
-              <div className="px-4 py-10 text-center text-neutral-700">
+              <div className="px-4 py-10 text-center" style={{ color: 'var(--fg-faint)' }}>
                 <p className="text-sm">Add songs from search results</p>
               </div>
             ) : (
-              <div className="max-h-[60vh] overflow-y-auto divide-y divide-neutral-800/50">
+              <div className="max-h-[60vh] overflow-y-auto divide-y" style={{ borderColor: 'var(--border)' }}>
                 {playlist.map((song, i) => (
-                  <div key={song.id} className="flex items-center gap-2 px-3 py-2.5 group hover:bg-white/[0.02]">
-                    <span className="text-xs text-neutral-600 w-5 text-right shrink-0">{i + 1}</span>
-                    <p className="text-xs text-neutral-300 flex-1 min-w-0 truncate">{song.title}</p>
+                  <div key={song.id} className="flex items-center gap-2 px-3 py-2.5 group hover:bg-black/[0.02] dark:hover:bg-white/[0.02]">
+                    <span className="text-xs w-5 text-right shrink-0" style={{ color: 'var(--fg-faint)' }}>{i + 1}</span>
+                    <p className="text-xs flex-1 min-w-0 truncate" style={{ color: 'var(--fg)' }}>{song.title}</p>
                     <button
                       onClick={() => removeFromPlaylist(song.id)}
                       className="text-neutral-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
@@ -197,7 +197,7 @@ export default function ManualSearchPage() {
             )}
 
             {playlist.length > 0 && (
-              <div className="p-3 border-t border-neutral-800">
+              <div className="p-3 border-t" style={{ borderColor: 'var(--border)' }}>
                 <PlaylistOutput songs={playlist} title="My Playlist" />
               </div>
             )}

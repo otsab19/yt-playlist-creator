@@ -40,10 +40,10 @@ export function SettingsDialog() {
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/70 z-40" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md bg-neutral-950 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md rounded-2xl p-6 shadow-2xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <div className="flex items-center justify-between mb-5">
-            <Dialog.Title className="text-base font-semibold text-white">API Keys</Dialog.Title>
+            <Dialog.Title className="text-base font-semibold" style={{ color: 'var(--fg)' }}>API Keys</Dialog.Title>
             <Dialog.Close asChild>
               <Button variant="ghost" size="icon"><X className="w-4 h-4" /></Button>
             </Dialog.Close>
@@ -51,7 +51,7 @@ export function SettingsDialog() {
 
           <div className="space-y-5">
             <div>
-              <label className="text-xs font-medium text-neutral-400 mb-1.5 flex items-center justify-between">
+              <label className="text-xs font-medium mb-1.5 flex items-center justify-between" style={{ color: 'var(--fg-muted)' }}>
                 <span>Gemini API Key</span>
                 <a
                   href="https://aistudio.google.com/app/apikey"
@@ -78,11 +78,11 @@ export function SettingsDialog() {
                   {showGemini ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-xs text-neutral-600 mt-1">Used for AI playlist generation (free tier available)</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--fg-faint)' }}>Used for AI playlist generation (free tier available)</p>
             </div>
 
             <div>
-              <label className="text-xs font-medium text-neutral-400 mb-1.5 flex items-center justify-between">
+              <label className="text-xs font-medium mb-1.5 flex items-center justify-between" style={{ color: 'var(--fg-muted)' }}>
                 <span>YouTube Data API v3 Key</span>
                 <a
                   href="https://console.cloud.google.com/apis/library/youtube.googleapis.com"
@@ -109,7 +109,7 @@ export function SettingsDialog() {
                   {showYoutube ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-xs text-neutral-600 mt-1">Used to search and link YouTube videos (~10k free daily quota)</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--fg-faint)' }}>Used to search and link YouTube videos (~10k free daily quota)</p>
             </div>
 
             <Button variant="primary" className="w-full" onClick={handleSave}>
