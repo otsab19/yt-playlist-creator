@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles, Mic2, Search, LogIn, LogOut } from "lucide-react";
+import { Sparkles, Mic2, Search, Compass, LogIn, LogOut } from "lucide-react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/", label: "AI Playlist", icon: Sparkles },
+  { href: "/discover", label: "Discover", icon: Compass },
   { href: "/setlist", label: "Setlist", icon: Mic2 },
   { href: "/search", label: "Search", icon: Search },
 ];

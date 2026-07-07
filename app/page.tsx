@@ -14,6 +14,7 @@ import { PlaylistOutput } from "@/components/playlist-output";
 import { useSession, signIn } from "next-auth/react";
 import { useSettings } from "@/components/settings-context";
 import { SignInBanner } from "@/components/sign-in-banner";
+import { MusicAutocomplete, type MusicResult } from "@/components/music-autocomplete";
 import { useToast } from "@/components/toast";
 import { getProvider } from "@/lib/llm/models";
 import type { SongEntry } from "@/lib/types";
@@ -211,6 +212,19 @@ export default function AIPlaylistPage() {
             <p className="text-sm mt-1" style={{ color: 'var(--fg-muted)' }}>
               Describe your vibe and let Gemini curate the perfect playlist.
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-medium" style={{ color: 'var(--fg-muted)' }}>Search artists, songs, or genres</label>
+            <MusicAutocomplete
+              onSelect={(r: MusicResult) => {
+                const text = r.type === "track" && r.artist
+                  ? `"${r.name}" by ${r.artist}`
+                  : r.name;
+                setPrompt(p => p ? `${p}, ${text}` : text);
+              }}
+              placeholder="Type to search artists, songs, genres…"
+            />
           </div>
 
           <div className="space-y-2">
